@@ -1,0 +1,109 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+    color-scheme: dark;
+
+    --font-sans: "IBM Plex Sans", sans-serif;
+    --font-mono: "IBM Plex Mono", monospace;
+
+    --bg: #101722;
+    --surface: #141f2d;
+    --surface-raised: #192637;
+    --surface-hover: #223348;
+
+    --border: #2b3b4d;
+
+    --text-primary: #e5ecf2;
+    --text-secondary: #9baabb;
+
+    --accent: #83b6d5;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans), sans-serif;
+    min-width: 320px;
+    min-height: 100vh;
+}
+
+#app{
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+#app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem 1.5rem;
+    border-bottom: var(--border) 1px solid;
+}
+
+#app-header h1 {
+  margin: 0;
+  line-height: 1.1;
+    font-size: 2rem;
+}
+
+#app-header search {
+  display: flex;
+  flex: 1 1 32rem;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 40rem;
+    min-width: 0;
+}
+
+#app-header search input{
+    flex: 1;
+    min-width: 0;
+}
+
+main {
+  display: grid;
+  grid-template-columns: 16rem minmax(0, 1fr);
+  flex: 1;
+}
+
+#sidebar {
+  padding: 1rem;
+}
+
+#bookmark-view {
+  min-width: 0;
+  padding: 1rem;
+    background: var(--surface);
+    border: var(--border) 1px solid;
+    border-top: 0;
+}
+
+#folder-list{
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+#folder-list button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    text-align: left;
+}
+
+#add-folder{
+    margin: 1rem 0;
+}

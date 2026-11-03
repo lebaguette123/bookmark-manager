@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+            href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+    />
+    <title>bookmark-manager</title>
+  </head>
+  <body>
+    <div id="app">
+      <header id="app-header">
+        <h1>Bookmark Manager</h1>
+        <search>
+          <label for="search-input">Search:</label>
+          <input id="search-input" type="search" placeholder="Search bookmarks..." />
+        </search>
+        <div id="actions">
+
+        </div>
+      </header>
+
+      <main>
+
+        <aside id="sidebar">
+          <h2>Navigation</h2>
+          <div id="navigation-actions">
+
+          </div>
+
+          <h2>Folders</h2>
+          <div id="folder-list"></div>
+
+          <button id="add-folder" type="button">
+            + Add folder
+          </button>
+        </aside>
+
+        <section id="bookmark-view">
+          <div id="view-header">
+            <h2 id="view-title">All Bookmarks</h2>
+            <div id="view-actions"></div>
+          </div>
+
+          <div id="bookmark-content"></div>
+        </section>
+
+      </main>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
