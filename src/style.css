@@ -404,6 +404,7 @@ dialog h2 {
   display: grid;
   width: min(100%, 22rem);
   gap: 0.6rem;
+  margin-inline: auto;
   margin-bottom: 1.25rem;
 }
 
