@@ -21,6 +21,8 @@
     --text-secondary: #9baabb;
 
     --accent: #83b6d5;
+    --folder-accent: #b8a1e8;
+    --bookmark-accent: #83b6d5;
 }
 
 html,
@@ -106,4 +108,109 @@ main {
 
 #add-folder{
     margin: 1rem 0;
+}
+
+.bookmark-card {
+    display: flex;
+    align-items: center;
+    min-height: 7rem;
+    padding: 1rem;
+    text-decoration: none;
+    background: color-mix(in srgb, var(--bookmark-accent) 8%, var(--surface-raised));
+    color: var(--text-primary);
+    --card-accent: var(--bookmark-accent);
+    border: 1px solid color-mix(in srgb, var(--bookmark-accent) 38%, var(--border));
+    border-radius: 0.5rem;
+    transition:
+        background-color 150ms ease,
+        border-color 150ms ease,
+        transform 150ms ease;
+}
+
+.folder-card {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 7rem;
+    padding: 1rem;
+    text-align: left;
+    background: color-mix(in srgb, var(--folder-accent) 10%, var(--surface-raised));
+    color: var(--text-primary);
+    --card-accent: var(--folder-accent);
+    border: 1px solid color-mix(in srgb, var(--folder-accent) 42%, var(--border));
+    border-radius: 0.5rem;
+    font: inherit;
+    cursor: pointer;
+    transition:
+        background-color 150ms ease,
+        border-color 150ms ease,
+        transform 150ms ease;
+}
+
+.bookmark-card:hover,
+.folder-card:hover {
+    background: color-mix(in srgb, var(--card-accent) 14%, var(--surface-hover));
+    border-color: var(--card-accent);
+    transform: translateY(-2px);
+}
+
+.bookmark-card:focus-visible,
+.folder-card:focus-visible {
+    outline: 2px solid var(--card-accent);
+    outline-offset: 3px;
+}
+
+.bookmark-card,
+.folder-card {
+    overflow-wrap: anywhere;
+}
+
+.bookmark-card::before,
+.folder-card::before {
+    display: block;
+    flex: 0 0 auto;
+    margin-right: 0.75rem;
+}
+
+.bookmark-card::before {
+    width: 0.8rem;
+    height: 1.05rem;
+    border: 2px solid var(--card-accent);
+    border-radius: 0.15rem 0.15rem 0.4rem 0.4rem;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%);
+}
+
+.folder-card::before {
+    width: 1.15rem;
+    height: 0.85rem;
+    border-radius: 0.15rem;
+    background: var(--card-accent);
+}
+
+.add-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 8rem;
+    border: 1px dashed var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.add-card:hover {
+    background: var(--surface-hover);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+#bookmark-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+    align-content: start;
+}
+
+.empty-state {
+    grid-column: 1 / -1;
 }

@@ -17,3 +17,7 @@ export interface BookmarkStore{
     folders: Folder[];
     bookmarks: Bookmark[];
 }
+
+export type FolderItem =
+    | { kind: "folder"; folder: Folder }
+    | { kind: "bookmark"; bookmark: Bookmark };

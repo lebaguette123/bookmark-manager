@@ -12,8 +12,10 @@
     />
     <title>bookmark-manager</title>
   </head>
+
   <body>
     <div id="app">
+
       <header id="app-header">
         <h1>Bookmark Manager</h1>
         <search>
@@ -39,18 +41,43 @@
           <button id="add-folder" type="button">
             + Add folder
           </button>
+
         </aside>
 
         <section id="bookmark-view">
+
           <div id="view-header">
             <h2 id="view-title">All Bookmarks</h2>
-            <div id="view-actions"></div>
+            <div id="view-actions">
+              <button id="navigate-parent" type="button">
+                Back
+              </button>
+            </div>
           </div>
 
           <div id="bookmark-content"></div>
+
         </section>
 
       </main>
+
+      <dialog id="add-dialog">
+        <h2>Add to current folder</h2>
+
+        <div class="dialog-actions">
+          <button type="button" id="add-folder-option">
+            New Folder
+          </button>
+
+          <button type="button" id="add-bookmark-option">
+            New Bookmark
+          </button>
+        </div>
+
+        <form method="dialog">
+          <button type="submit">Cancel</button>
+        </form>
+      </dialog>
     </div>
 
     <script type="module" src="/src/main.ts"></script>
