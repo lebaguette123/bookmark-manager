@@ -5,24 +5,32 @@
 }
 
 :root {
-    color-scheme: dark;
+  color-scheme: dark;
 
-    --font-sans: "IBM Plex Sans", sans-serif;
-    --font-mono: "IBM Plex Mono", monospace;
+  --font-sans: "IBM Plex Sans", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
 
-    --bg: #101722;
-    --surface: #141f2d;
-    --surface-raised: #192637;
-    --surface-hover: #223348;
+  --bg: #0e141d;
+  --surface: #151e2a;
+  --surface-raised: #1b2735;
+  --surface-hover: #243548;
+  --surface-active: #2b4056;
 
-    --border: #2b3b4d;
+  --border: #2c3c4d;
+  --border-soft: color-mix(in srgb, var(--border) 62%, transparent);
 
-    --text-primary: #e5ecf2;
-    --text-secondary: #9baabb;
+  --text-primary: #edf3f7;
+  --text-secondary: #9cabb9;
+  --text-muted: #718294;
 
-    --accent: #83b6d5;
-    --folder-accent: #b8a1e8;
-    --bookmark-accent: #83b6d5;
+  --accent: #8bc4e3;
+  --folder-accent: #c1a9ee;
+  --bookmark-accent: #8bc4e3;
+
+  --radius-sm: 0.4rem;
+  --radius-md: 0.7rem;
+  --shadow-panel: 0 1rem 2.5rem rgb(0 0 0 / 18%), 0 0.15rem 0.4rem rgb(0 0 0 / 20%);
+  --shadow-card: 0 0.35rem 0.8rem rgb(0 0 0 / 16%);
 }
 
 html,
@@ -32,185 +40,427 @@ body {
 }
 
 body {
-  background-color: var(--bg);
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--bg);
   color: var(--text-primary);
   font-family: var(--font-sans), sans-serif;
-    min-width: 320px;
-    min-height: 100vh;
 }
 
-#app{
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+button,
+input {
+  font: inherit;
+}
+
+button {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+
+button:hover {
+  border-color: var(--accent);
+  background: var(--surface-hover);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+button:focus-visible,
+input:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+#app {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
 }
 
 #app-header {
   display: flex;
+  width: 100%;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  width: 100%;
-  padding: 1rem 1.5rem;
-    border-bottom: var(--border) 1px solid;
+  gap: 1.25rem;
+  padding: 0.85rem clamp(1rem, 3vw, 2rem);
+  background: var(--surface);
 }
 
 #app-header h1 {
   margin: 0;
+  color: var(--text-primary);
+  font-size: clamp(1.2rem, 1.7vw, 1.5rem);
+  letter-spacing: -0.035em;
   line-height: 1.1;
-    font-size: 2rem;
+  white-space: nowrap;
 }
 
 #app-header search {
   display: flex;
+  min-width: 0;
+  max-width: 40rem;
   flex: 1 1 32rem;
   align-items: center;
-  gap: 0.5rem;
-  max-width: 40rem;
-    min-width: 0;
+  gap: 0.65rem;
 }
 
-#app-header search input{
-    flex: 1;
-    min-width: 0;
+#app-header search label {
+  color: var(--text-muted);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+#app-header search input {
+  min-width: 0;
+  flex: 1;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  outline: 0;
+  background: var(--bg);
+  color: var(--text-primary);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 18%);
+}
+
+#app-header search input::placeholder {
+  color: var(--text-muted);
 }
 
 main {
   display: grid;
+  min-height: 0;
   grid-template-columns: 16rem minmax(0, 1fr);
   flex: 1;
+  background: var(--surface);
 }
 
 #sidebar {
-  padding: 1rem;
+  padding: 1.25rem 1rem 2rem;
+}
+
+#sidebar h2,
+#view-header h2 {
+  margin: 0;
+}
+
+#sidebar h2 {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+#sidebar h2 + #navigation-actions,
+#sidebar h2 + #folder-list {
+  margin-top: 0.65rem;
+}
+
+#navigation-actions {
+  display: grid;
+  gap: 0.35rem;
+}
+
+#folder-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+#folder-list button {
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  border-color: transparent;
+  background: transparent;
+  text-align: left;
+}
+
+#folder-list button::before {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.58rem;
+  margin-right: 0.65rem;
+  border-radius: 0.12rem;
+  background: var(--folder-accent);
+  content: "";
+  vertical-align: 0.02em;
+}
+
+#folder-list button:hover,
+#folder-list button.active {
+  border-color: var(--border);
+  background: var(--surface-raised);
+}
+
+#folder-list button.active {
+  color: var(--folder-accent);
+  box-shadow: inset 0.15rem 0 var(--folder-accent);
+}
+
+#add-folder {
+  width: 100%;
+  margin-top: 1.25rem;
+  padding: 0.65rem 0.75rem;
+  border-style: dashed;
+  background: transparent;
+  color: var(--text-secondary);
 }
 
 #bookmark-view {
   min-width: 0;
+  padding: clamp(1rem, 3vw, 2rem);
+  border-top: 1px solid var(--border-soft);
+  border-left: 1px solid var(--border-soft);
+  border-radius: var(--radius-md) 0 0 0;
+  background: var(--bg);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 2%);
+  overflow: hidden;
+}
+
+#view-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+#view-title {
+  font-size: clamp(1.15rem, 2vw, 1.45rem);
+  letter-spacing: -0.025em;
+}
+
+#view-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+#navigate-parent {
+  padding: 0.5rem 0.75rem;
+  color: var(--text-secondary);
+}
+
+#bookmark-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  align-content: start;
+}
+
+#bookmark-form,
+#folder-form {
+  display: grid;
+  gap: 0.6rem;
+}
+
+#bookmark-form label,
+#folder-form label {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+#bookmark-form input,
+#folder-form input {
+  width: 100%;
+  padding: 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+#bookmark-form .dialog-actions,
+#folder-form .dialog-actions {
+  margin-top: 1rem;
+}
+
+.bookmark-card,
+.folder-card,
+.add-card {
+  min-height: 7rem;
   padding: 1rem;
-    background: var(--surface);
-    border: var(--border) 1px solid;
-    border-top: 0;
-}
-
-#folder-list{
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-#folder-list button {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    text-align: left;
-}
-
-#add-folder{
-    margin: 1rem 0;
-}
-
-.bookmark-card {
-    display: flex;
-    align-items: center;
-    min-height: 7rem;
-    padding: 1rem;
-    text-decoration: none;
-    background: color-mix(in srgb, var(--bookmark-accent) 8%, var(--surface-raised));
-    color: var(--text-primary);
-    --card-accent: var(--bookmark-accent);
-    border: 1px solid color-mix(in srgb, var(--bookmark-accent) 38%, var(--border));
-    border-radius: 0.5rem;
-    transition:
-        background-color 150ms ease,
-        border-color 150ms ease,
-        transform 150ms ease;
-}
-
-.folder-card {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    min-height: 7rem;
-    padding: 1rem;
-    text-align: left;
-    background: color-mix(in srgb, var(--folder-accent) 10%, var(--surface-raised));
-    color: var(--text-primary);
-    --card-accent: var(--folder-accent);
-    border: 1px solid color-mix(in srgb, var(--folder-accent) 42%, var(--border));
-    border-radius: 0.5rem;
-    font: inherit;
-    cursor: pointer;
-    transition:
-        background-color 150ms ease,
-        border-color 150ms ease,
-        transform 150ms ease;
-}
-
-.bookmark-card:hover,
-.folder-card:hover {
-    background: color-mix(in srgb, var(--card-accent) 14%, var(--surface-hover));
-    border-color: var(--card-accent);
-    transform: translateY(-2px);
-}
-
-.bookmark-card:focus-visible,
-.folder-card:focus-visible {
-    outline: 2px solid var(--card-accent);
-    outline-offset: 3px;
+  border-radius: var(--radius-md);
 }
 
 .bookmark-card,
 .folder-card {
-    overflow-wrap: anywhere;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  overflow-wrap: anywhere;
+  color: var(--text-primary);
+  text-align: left;
+  text-decoration: none;
+  box-shadow: var(--shadow-card);
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+
+.bookmark-card {
+  --card-accent: var(--bookmark-accent);
+  border-color: color-mix(in srgb, var(--bookmark-accent) 38%, var(--border));
+  background: color-mix(in srgb, var(--bookmark-accent) 8%, var(--surface-raised));
+}
+
+.folder-card {
+  --card-accent: var(--folder-accent);
+  border-color: color-mix(in srgb, var(--folder-accent) 42%, var(--border));
+  background: color-mix(in srgb, var(--folder-accent) 10%, var(--surface-raised));
+}
+
+.bookmark-card:hover,
+.folder-card:hover {
+  border-color: var(--card-accent);
+  background: color-mix(in srgb, var(--card-accent) 14%, var(--surface-hover));
+  box-shadow: 0 0.6rem 1.2rem rgb(0 0 0 / 24%);
+  transform: translateY(-2px);
 }
 
 .bookmark-card::before,
 .folder-card::before {
-    display: block;
-    flex: 0 0 auto;
-    margin-right: 0.75rem;
+  display: block;
+  flex: 0 0 auto;
+  margin-right: 0.75rem;
 }
 
 .bookmark-card::before {
-    width: 0.8rem;
-    height: 1.05rem;
-    border: 2px solid var(--card-accent);
-    border-radius: 0.15rem 0.15rem 0.4rem 0.4rem;
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%);
+  width: 0.8rem;
+  height: 1.05rem;
+  border: 2px solid var(--card-accent);
+  border-radius: 0.15rem 0.15rem 0.4rem 0.4rem;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%);
+  content: "";
 }
 
 .folder-card::before {
-    width: 1.15rem;
-    height: 0.85rem;
-    border-radius: 0.15rem;
-    background: var(--card-accent);
+  width: 1.15rem;
+  height: 0.85rem;
+  border-radius: 0.15rem;
+  background: var(--card-accent);
+  content: "";
 }
 
 .add-card {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 8rem;
-    border: 1px dashed var(--border);
-    background: transparent;
-    color: var(--text-secondary);
-    cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--border);
+  background: transparent;
+  color: var(--text-secondary);
 }
 
 .add-card:hover {
-    background: var(--surface-hover);
-    border-color: var(--accent);
-    color: var(--accent);
-}
-
-#bookmark-content {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 1rem;
-    align-content: start;
+  border-color: var(--accent);
+  background: var(--surface-hover);
+  color: var(--accent);
 }
 
 .empty-state {
-    grid-column: 1 / -1;
+  grid-column: 1 / -1;
+  margin: 1rem 0 0;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+dialog {
+  width: min(28rem, calc(100% - 2rem));
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text-primary);
+  box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 42%);
+}
+
+dialog::backdrop {
+  background: rgb(5 9 14 / 68%);
+  backdrop-filter: blur(2px);
+}
+
+dialog h2 {
+  margin: 0 0 1.25rem;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.dialog-actions {
+  display: grid;
+  width: min(100%, 22rem);
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.dialog-actions button,
+dialog form button {
+  padding: 0.65rem 0.8rem;
+}
+
+dialog form {
+  display: grid;
+  justify-items: center;
+  width: 100%;
+}
+
+dialog form label,
+dialog form input,
+dialog form .dialog-actions,
+dialog form button {
+  width: min(100%, 22rem);
+}
+
+dialog form input {
+  justify-self: center;
+}
+
+@media (max-width: 700px) {
+  #app-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  #app-header search {
+    max-width: none;
+  }
+
+  main {
+    grid-template-columns: 1fr;
+  }
+
+  #sidebar {
+    padding-bottom: 1rem;
+    border-right: 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  #folder-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  }
+
+  #add-folder {
+    width: auto;
+  }
+
+  #bookmark-view {
+    border-radius: 0;
+      border-left: 0;
+  }
 }

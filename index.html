@@ -78,6 +78,38 @@
           <button type="submit">Cancel</button>
         </form>
       </dialog>
+
+      <dialog id="bookmark-dialog">
+        <h2>New Bookmark</h2>
+
+        <form id="bookmark-form">
+          <label for="bookmark-title">Title</label>
+          <input id="bookmark-title" type="text" required />
+
+          <label for="bookmark-url">URL</label>
+          <input id="bookmark-url" type="url" required />
+
+          <div class="dialog-actions">
+            <button type="submit">Add Bookmark</button>
+            <button type="button" id="cancel-bookmark">Cancel</button>
+          </div>
+        </form>
+      </dialog>
+
+      <dialog id="folder-dialog">
+        <h2>New Folder</h2>
+
+        <form id="folder-form">
+          <label for="folder-name">Folder Name</label>
+          <input id="folder-name" type="text" required />
+
+          <div class="dialog-actions">
+            <button type="submit">Create Folder</button>
+            <button type="button" id="cancel-folder">Cancel</button>
+          </div>
+        </form>
+      </dialog>
+      
     </div>
 
     <script type="module" src="/src/main.ts"></script>

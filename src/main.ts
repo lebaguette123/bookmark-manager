@@ -11,31 +11,29 @@ function loadBookmarks(): BookmarkStore{
     };
 }
 
-/*
-function addBookmark(bookmark: Bookmark){
-    // Simulate adding a bookmark
+function addBookmark(name: string, url: string, folderId: string | null = null){
+    const bookmark: Bookmark = {
+        id: crypto.randomUUID(),
+        title: name,
+        url,
+        position: getNextPosition(folderId),
+        folderId,
+        dateAdded: Date.now().toString(),
+    }
+
     bookmarkStore.bookmarks.push(bookmark);
+    renderBookmarkView();
 }
-*/
 
 
 let currentFolderId: string | null = null;
 
 function addFolder(name: string, parentId: string | null = null) {
-    const siblings = bookmarkStore.folders.filter(
-        folder => folder.parentId === parentId
-    );
-
-    const position = siblings.reduce(
-        (highest, folder) => Math.max(highest, folder.position),
-        -1
-    ) + 1;
-
     const folder: Folder = {
         id: crypto.randomUUID(),
         name,
         parentId,
-        position
+        position: getNextPosition(parentId)
     };
 
     bookmarkStore.folders.push(folder);
@@ -44,24 +42,94 @@ function addFolder(name: string, parentId: string | null = null) {
 }
 
 document.getElementById('add-folder')?.addEventListener('click', () => {
-    const name = window.prompt('Enter folder name:');
+    const dialog = document.getElementById('folder-dialog');
 
-    if (name?.trim()) {
-        addFolder(name.trim(), currentFolderId);
+    if (dialog instanceof HTMLDialogElement) {
+        dialog.showModal();
     }
 });
 
 document.getElementById('navigate-parent')?.addEventListener('click', navigateToParent);
 
-document.getElementById('add-folder-option')?.addEventListener('click', () => {
-    const name = window.prompt('Enter folder name:');
+document.getElementById('bookmark-form')?.addEventListener('submit', event => {
+    event.preventDefault();
 
-    if (name?.trim()) {
-        addFolder(name.trim());
+    const title = (document.getElementById('bookmark-title') as HTMLInputElement).value.trim();
+    const url = (document.getElementById('bookmark-url') as HTMLInputElement).value.trim();
+
+    if (!title || !url) return;
+
+    addBookmark(title, url, currentFolderId);
+
+    const dialog = document.getElementById('bookmark-dialog');
+
+    if (dialog instanceof HTMLDialogElement) {
+        dialog.close();
     }
 
-    const dialog = document.getElementById('add-dialog') as HTMLDialogElement;
-    dialog.close();
+    (event.currentTarget as HTMLFormElement).reset();
+});
+
+document.getElementById('folder-form')?.addEventListener('submit', event => {
+   event.preventDefault();
+
+   const input = document.getElementById('folder-name');
+
+   if (!(input instanceof HTMLInputElement)) return;
+
+   const name = input.value.trim();
+   if (!name) return;
+
+   addFolder(name, currentFolderId);
+
+   const dialog = document.getElementById('folder-dialog');
+
+   if (dialog instanceof HTMLDialogElement) {
+       dialog.close();
+   }
+
+    (event.currentTarget as HTMLFormElement).reset();
+});
+
+document.getElementById('cancel-folder')?.addEventListener('click', () => {
+    const dialog = document.getElementById('folder-dialog');
+
+    if (dialog instanceof HTMLDialogElement) {
+        dialog.close();
+    }
+});
+
+document.getElementById('cancel-bookmark')?.addEventListener('click', () => {
+    const dialog = document.getElementById('bookmark-dialog');
+
+    if (dialog instanceof HTMLDialogElement) {
+        dialog.close();
+    }
+});
+
+document.getElementById('add-bookmark-option')?.addEventListener('click', () => {
+    const addDialog = document.getElementById('add-dialog');
+    const bookmarkDialog = document.getElementById('bookmark-dialog');
+
+    if (addDialog instanceof HTMLDialogElement &&
+        bookmarkDialog instanceof HTMLDialogElement) {
+
+        addDialog.close();
+        bookmarkDialog.showModal();
+    }
+});
+
+document.getElementById('add-folder-option')?.addEventListener('click', () => {
+    const addDialog = document.getElementById('add-dialog');
+    const folderDialog = document.getElementById('folder-dialog');
+
+    if (
+        addDialog instanceof HTMLDialogElement &&
+        folderDialog instanceof HTMLDialogElement
+    ) {
+        addDialog.close();
+        folderDialog.showModal();
+    }
 });
 
 function renderFoldersSidebar(){
@@ -200,6 +268,18 @@ function navigateToParent(): void {
 
     renderFoldersSidebar();
     renderBookmarkView();
+}
+
+function getNextPosition(parentId: string | null): number {
+    const folderPositions = bookmarkStore.folders
+        .filter(folder => folder.parentId === parentId)
+        .map(folder => folder.position);
+
+    const bookmarkPositions = bookmarkStore.bookmarks
+        .filter(bookmark => bookmark.folderId === parentId)
+        .map(bookmark => bookmark.position);
+
+    return Math.max(-1, ...folderPositions, ...bookmarkPositions) + 1;
 }
 
 renderFoldersSidebar();
