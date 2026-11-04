@@ -1,15 +1,11 @@
-import type {BookmarkStore, Bookmark, Folder, FolderItem} from './lib/bookmark';
-import './style.css';
+import type {BookmarkStore, Bookmark, Folder, FolderItem, PendingDeletion} from './models/bookmark';
+import {parseBookmarksHtml} from './features/bookmark-import';
+import {bookmarkStore, saveBookmarks} from './data/bookmark-storage';
+import {createAddCard, createBookmarkCard, createFolderCard} from './ui/cards';
+import './styles/index.css';
 
-const bookmarkStore: BookmarkStore = loadBookmarks();
-
-function loadBookmarks(): BookmarkStore{
-    // Simulate loading bookmarks from a data source
-    return {
-        folders: [],
-        bookmarks: []
-    };
-}
+let pendingImport: BookmarkStore | null = null;
+let pendingDeletion: PendingDeletion | null = null;
 
 function addBookmark(name: string, url: string, folderId: string | null = null){
     const bookmark: Bookmark = {
@@ -22,6 +18,54 @@ function addBookmark(name: string, url: string, folderId: string | null = null){
     }
 
     bookmarkStore.bookmarks.push(bookmark);
+    saveBookmarks();
+
+    renderBookmarkView();
+}
+
+function deleteBookmark(bookmarkId: string){
+    const index = bookmarkStore.bookmarks.findIndex(
+        bookmark => bookmark.id === bookmarkId
+    );
+
+    if (index === -1) return;
+
+    bookmarkStore.bookmarks.splice(index, 1);
+
+    saveBookmarks();
+    renderBookmarkView();
+}
+
+function deleteFolder(folderId: string): void {
+    const foldersToDelete = new Set<string>();
+
+    function collectDescendants(id: string): void {
+        if (foldersToDelete.has(id)) return;
+
+        foldersToDelete.add(id);
+
+        bookmarkStore.folders
+            .filter(folder => folder.parentId === id)
+            .forEach(folder => collectDescendants(folder.id));
+    }
+
+    collectDescendants(folderId);
+
+    bookmarkStore.folders = bookmarkStore.folders.filter(
+        folder => !foldersToDelete.has(folder.id)
+    );
+
+    bookmarkStore.bookmarks = bookmarkStore.bookmarks.filter(
+        bookmark => bookmark.folderId === null ||
+            !foldersToDelete.has(bookmark.folderId)
+    );
+
+    if (currentFolderId !== null && foldersToDelete.has(currentFolderId)) {
+        currentFolderId = null;
+    }
+
+    saveBookmarks();
+    renderFoldersSidebar();
     renderBookmarkView();
 }
 
@@ -37,6 +81,8 @@ function addFolder(name: string, parentId: string | null = null) {
     };
 
     bookmarkStore.folders.push(folder);
+    saveBookmarks();
+
     renderFoldersSidebar();
     renderBookmarkView();
 }
@@ -132,6 +178,124 @@ document.getElementById('add-folder-option')?.addEventListener('click', () => {
     }
 });
 
+document.getElementById('confirm-import')?.addEventListener('click', () => {
+   if (!pendingImport) return;
+
+   bookmarkStore.folders.splice(
+       0,
+       bookmarkStore.folders.length,
+       ...pendingImport.folders
+   );
+   bookmarkStore.bookmarks.splice(
+       0,
+       bookmarkStore.bookmarks.length,
+       ...pendingImport.bookmarks
+   );
+   pendingImport = null;
+
+   saveBookmarks();
+
+   currentFolderId = null;
+
+   renderFoldersSidebar();
+   renderBookmarkView();
+
+   const dialog = document.getElementById('replace-import-dialog');
+   if (dialog instanceof HTMLDialogElement) {
+       dialog.close();
+   }
+});
+
+document.getElementById('cancel-import')?.addEventListener('click', () => {
+    pendingImport = null;
+
+    const dialog = document.getElementById('replace-import-dialog');
+
+    if (dialog instanceof HTMLDialogElement) {
+        dialog.close();
+    }
+});
+
+document.getElementById('replace-import-dialog')?.addEventListener('close', () => {
+    pendingImport = null;
+});
+
+document.getElementById('home-button')?.addEventListener('click', () => {
+    currentFolderId = null;
+    renderFoldersSidebar();
+    renderBookmarkView();
+});
+
+document.getElementById('confirm-delete')?.addEventListener('click', () => {
+    if (!pendingDeletion) return;
+
+    const target = pendingDeletion;
+    pendingDeletion = null;
+
+    const dialog = document.getElementById('delete-dialog');
+
+    if (dialog instanceof HTMLDialogElement) {
+        dialog.close();
+    }
+
+    if (target.kind === 'bookmark') {
+        deleteBookmark(target.id);
+    } else {
+        deleteFolder(target.id);
+    }
+});
+
+document.getElementById('cancel-delete')?.addEventListener('click', () => {
+    pendingDeletion = null;
+
+    const dialog = document.getElementById('delete-dialog');
+
+    if (dialog instanceof HTMLDialogElement) {
+        dialog.close();
+    }
+});
+
+const importButton = document.getElementById('import-bookmarks');
+const fileInput = document.getElementById('bookmark-file');
+
+if (importButton && fileInput instanceof HTMLInputElement) {
+    importButton.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', async () => {
+        const file = fileInput.files?.[0];
+
+        if (!file) return;
+
+        fileInput.value = '';
+
+        const html = await file.text();
+
+        let importedStore: BookmarkStore;
+
+        try {
+            importedStore = parseBookmarksHtml(html);
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+
+        pendingImport = importedStore;
+
+        const summary = document.getElementById('import-summary');
+        if (summary){
+            summary.textContent = `Found ${importedStore.folders.length} folders and ${importedStore.bookmarks.length} bookmarks.`;
+        }
+
+        const dialog = document.getElementById('replace-import-dialog');
+
+        if (dialog instanceof HTMLDialogElement) {
+            dialog.showModal();
+        }
+    });
+}
+
 function renderFoldersSidebar(){
     const folderList = document.getElementById('folder-list');
     if (!folderList) return;
@@ -204,54 +368,34 @@ function renderBookmarkView(){
 
     items.forEach(item => {
         const card = item.kind === "folder"
-            ? createFolderCard(item.folder)
-            : createBookmarkCard(item.bookmark);
+            ? createFolderCard(item.folder, openFolder, requestDeletion)
+            : createBookmarkCard(item.bookmark, requestBookmarkDeletion);
 
         bookmarkView.append(card);
     });
 
-    bookmarkView.append(createAddCard());
+    updateViewTitle();
+
+    bookmarkView.append(createAddCard(openAddDialog));
 }
 
-function createFolderCard(folder: Folder): HTMLButtonElement{
-    const card = document.createElement('button');
-    card.type = 'button';
-    card.textContent = folder.name;
-    card.classList.add('folder-card');
-
-    card.addEventListener('click', () => {
-        openFolder(folder.id);
+function requestBookmarkDeletion(bookmark: Bookmark): void {
+    requestDeletion({
+        kind: 'bookmark',
+        id: bookmark.id,
+        name: bookmark.title
     });
-
-    return card;
 }
 
-function createBookmarkCard(bookmark: Bookmark): HTMLAnchorElement {
-    const card = document.createElement('a');
-    card.href = bookmark.url;
-    card.target = '_blank';
-    card.rel = 'noopener noreferrer';
-    card.textContent = bookmark.title;
-    card.classList.add('bookmark-card');
+function openAddDialog(): void {
+    const dialog = document.getElementById('add-dialog');
 
-    return card;
+    if (dialog instanceof HTMLDialogElement) {
+        dialog.showModal();
+    }
 }
 
-function createAddCard(): HTMLButtonElement{
-    const card = document.createElement('button');
-    card.type = 'button'
-    card.classList.add('add-card');
-    card.textContent = '+ Add';
-
-    card.addEventListener('click', ()=>{
-       const dialog = document.getElementById('add-dialog') as HTMLDialogElement;
-       dialog.showModal();
-    });
-
-    return card;
-}
-
-function openFolder(folderId: string): void {
+export function openFolder(folderId: string): void {
     currentFolderId = folderId;
     renderFoldersSidebar();
     renderBookmarkView();
@@ -280,6 +424,47 @@ function getNextPosition(parentId: string | null): number {
         .map(bookmark => bookmark.position);
 
     return Math.max(-1, ...folderPositions, ...bookmarkPositions) + 1;
+}
+
+function updateViewTitle(): void {
+    const title = document.getElementById('view-title');
+    if (!title) return;
+
+    if (currentFolderId === null) {
+        title.textContent = 'Home';
+        return;
+    }
+
+    const folder = bookmarkStore.folders.find(
+        folder => folder.id === currentFolderId
+    );
+
+    title.textContent = folder?.name ?? 'Unknown Folder';
+}
+
+export function requestDeletion(target: PendingDeletion): void {
+    pendingDeletion = target;
+
+    const title = document.getElementById('delete-dialog-title');
+    const message = document.getElementById('delete-dialog-message');
+
+    if (title) {
+        title.textContent = target.kind === 'folder'
+            ? 'Delete Folder?'
+            : 'Delete Bookmark?';
+    }
+
+    if (message) {
+        message.textContent = target.kind === 'folder'
+            ? `Are you sure you want to delete "${target.name}" and all its contents?`
+            : `Are you sure you want to delete "${target.name}"?`;
+    }
+
+    const dialog = document.getElementById('delete-dialog');
+
+    if (dialog instanceof HTMLDialogElement) {
+        dialog.showModal();
+    }
 }
 
 renderFoldersSidebar();

@@ -23,7 +23,10 @@
           <input id="search-input" type="search" placeholder="Search bookmarks..." />
         </search>
         <div id="actions">
-
+          <button id="import-bookmarks" type="button">
+            Import Bookmarks
+          </button>
+          <input id="bookmark-file" type="file" accept=".html,text/html" hidden/>
         </div>
       </header>
 
@@ -32,7 +35,12 @@
         <aside id="sidebar">
           <h2>Navigation</h2>
           <div id="navigation-actions">
-
+            <button id="home-button" type="button">
+              Home
+            </button>
+            <button id="all-bookmarks-button" type="button">
+              All Bookmarks
+            </button>
           </div>
 
           <h2>Folders</h2>
@@ -108,6 +116,43 @@
             <button type="button" id="cancel-folder">Cancel</button>
           </div>
         </form>
+      </dialog>
+
+      <dialog id="replace-import-dialog">
+        <h2>Replace Bookmark Collection?</h2>
+
+        <p id="import-summary"></p>
+
+        <p>
+          This will replace your existing bookmarks and folders.
+          This action cannot be undone.
+        </p>
+
+        <div class="dialog-actions">
+          <button type="button" id="confirm-import">
+            Replace Collection
+          </button>
+
+          <button type="button" id="cancel-import">
+            Cancel
+          </button>
+        </div>
+      </dialog>
+
+      <dialog id="delete-dialog">
+        <h2 id="delete-dialog-title">Delete Bookmark?</h2>
+
+        <p id="delete-dialog-message"></p>
+
+        <div class="dialog-actions">
+          <button type="button" id="confirm-delete">
+            Delete
+          </button>
+
+          <button type="button" id="cancel-delete">
+            Cancel
+          </button>
+        </div>
       </dialog>
       
     </div>

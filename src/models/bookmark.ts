@@ -13,7 +13,8 @@ export interface Folder {
     parentId: string | null;
     position: number;
 }
-export interface BookmarkStore{
+
+export interface BookmarkStore {
     folders: Folder[];
     bookmarks: Bookmark[];
 }
@@ -21,3 +22,9 @@ export interface BookmarkStore{
 export type FolderItem =
     | { kind: "folder"; folder: Folder }
     | { kind: "bookmark"; bookmark: Bookmark };
+
+export type PendingDeletion =
+    | { kind: 'bookmark'; id: string; name: string }
+    | { kind: 'folder'; id: string; name: string };
+
+
